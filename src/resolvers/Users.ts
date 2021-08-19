@@ -1,5 +1,5 @@
-import { User } from "../entities/user";
-import { CreateUserInput, EditProfileInput, GetUsersFilter, LoginInput, RequestForgotPassInput, ResetPasswordInput } from "../inputs/user";
+import { User } from "../entities/User";
+import { CreateUserInput, EditProfileInput, GetUsersFilter, LoginInput, RequestForgotPassInput, ResetPasswordInput } from "../inputs/User";
 import { Arg, Authorized, Ctx, Field, Mutation, ObjectType, Query, Resolver } from "type-graphql";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";

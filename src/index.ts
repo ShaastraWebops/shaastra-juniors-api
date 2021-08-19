@@ -9,7 +9,7 @@ import express from "express";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import jwt from "jsonwebtoken";
-import { User } from "./entities/user";
+import { User } from "./entities/User";
 import { authChecker } from "./utils/auth";
 
 dotenv.config();

@@ -1,4 +1,4 @@
-import { UserResolver } from "./users";
+import { UserResolver } from "./Users";
 
 export default [
     UserResolver
