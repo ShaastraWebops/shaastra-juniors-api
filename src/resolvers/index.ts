@@ -1,5 +1,7 @@
+import { FAQsResolver } from "./FAQs";
 import { UserResolver } from "./Users";
 
 export default [
-    UserResolver
+    UserResolver,
+    FAQsResolver
 ] as const;
