@@ -1,6 +1,8 @@
-import { Field, InputType } from "type-graphql";
+import { Field, InputType, registerEnumType } from "type-graphql";
 import { IsEmail/*, Length*/ } from "class-validator";
 import { Standard, UserRole } from "../utils";
+
+registerEnumType( Standard, { name: "Standard" } );
 
 @InputType("CreateUserInput")
 export class CreateUserInput {
@@ -21,7 +23,7 @@ export class CreateUserInput {
 	@Field()
 	school: string;
 
-	@Field()
+	@Field(() => Standard)
 	class: Standard;
 }
 

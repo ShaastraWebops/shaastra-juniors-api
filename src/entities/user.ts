@@ -1,10 +1,12 @@
 import cuid from "cuid";
 import bcrypt from "bcryptjs";
-import { Field, ID, ObjectType } from "type-graphql";
-import { SendConfirmationMailOptions, SendVerificationMailOptions, UserRole } from "../utils";
+import { Field, ID, ObjectType, registerEnumType } from "type-graphql";
+import { SendConfirmationMailOptions, SendVerificationMailOptions, Standard, UserRole } from "../utils";
 import jwt from "jsonwebtoken";
 import { mail } from "../utils/mail";
 import { BaseEntity, BeforeInsert, Column, Entity, PrimaryColumn } from "typeorm";
+
+registerEnumType( UserRole, { name: "UserRole" } );
 
 @Entity("User")
 @ObjectType("User")
@@ -89,16 +91,16 @@ export class User extends BaseEntity {
     @Field()
     school: string;
 
-    @Column()
-    @Field()
-    class: string;
+    @Column("enum", { enum: Standard })
+    @Field(() => Standard)
+    class: Standard;
 
     @Column({ default: false})
     @Field()
     isVerified: boolean;
 
     @Column("enum", { enum: UserRole, default: UserRole.USER })
-    @Field()
+    @Field(() => UserRole)
     role: UserRole;
 
     @Column({nullable: true})
