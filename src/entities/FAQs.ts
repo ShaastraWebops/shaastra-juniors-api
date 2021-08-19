@@ -7,7 +7,7 @@ import { BaseEntity, BeforeInsert, Column, CreateDateColumn, Entity, PrimaryColu
 export class FAQs extends BaseEntity {
 
     @BeforeInsert()
-    async setId() {
+    setId() {
       this.id = cuid();
     }
   

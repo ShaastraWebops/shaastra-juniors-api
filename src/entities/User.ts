@@ -4,7 +4,8 @@ import { Field, ID, ObjectType, registerEnumType } from "type-graphql";
 import { SendConfirmationMailOptions, SendVerificationMailOptions, Standard, UserRole } from "../utils";
 import jwt from "jsonwebtoken";
 import { mail } from "../utils/mail";
-import { BaseEntity, BeforeInsert, Column, Entity, PrimaryColumn } from "typeorm";
+import { BaseEntity, BeforeInsert, Column, Entity, OneToMany, PrimaryColumn } from "typeorm";
+import { Event } from "./Event"
 
 registerEnumType( UserRole, { name: "UserRole" } );
 
@@ -108,4 +109,8 @@ export class User extends BaseEntity {
 
     @Column({nullable: true})
     passUUID: string;
+
+    //relations
+    @OneToMany(() => Event, events => events.user)
+    events: Event[]
 }

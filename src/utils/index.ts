@@ -32,3 +32,9 @@ export enum Standard {
   ELEVENTH = "XI",
   TWELFTH = "XII"
 }
+
+export enum EventType {
+  WORKSHOPS = "WORKSHOPS",
+  COMPETITIONS = "COMPETITIONS",
+  SHOWS = "SHOWS"
+}

@@ -1,12 +1,13 @@
 import { User } from "../entities/User";
 import { CreateUserInput, EditProfileInput, GetUsersFilter, LoginInput, RequestForgotPassInput, ResetPasswordInput } from "../inputs/User";
-import { Arg, Authorized, Ctx, Field, Mutation, ObjectType, Query, Resolver } from "type-graphql";
+import { Arg, Authorized, Ctx, Field, FieldResolver, Mutation, ObjectType, Query, Resolver, Root } from "type-graphql";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import { MyContext } from "../utils/context";
 import { ADMINMAILLIST, UserRole } from "../utils";
 import cuid from "cuid";
 import { Like } from "typeorm";
+import { Event } from "../entities/Event";
 
 @ObjectType("GetUsersOutput")
 class GetUsersOutput {
@@ -17,7 +18,7 @@ class GetUsersOutput {
   count: Number;
 }
 
-@Resolver()
+@Resolver(User)
 export class UserResolver {
 
     @Mutation(() => Boolean)
@@ -157,5 +158,12 @@ export class UserResolver {
         const userStr = users.map( (obj) => JSON.stringify(obj) );
         const uniqueUserStr = new Set(userStr);
         return Array.from(uniqueUserStr).map( (str) => JSON.parse(str) );
+    }
+
+    @Authorized(["ADMIN"])
+    @FieldResolver(() => [Event])
+    async events(@Root() { id }: User ) {
+        const events = await Event.find({ where: { user: id } });
+        return events;
     }
 }
