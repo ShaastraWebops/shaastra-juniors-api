@@ -5,6 +5,7 @@ import { MyContext } from "../utils/context";
 import moment from "moment";
 import { EventType } from "../utils";
 import { User } from "../entities/User";
+import { EventFAQ } from "../entities/EventFAQ";
 
 @ObjectType("GetEventsOutput")
 class GetEventsOutput {
@@ -70,5 +71,11 @@ export class EventResolver {
     async user(@Root() { user } : Event ) {
         const USER  = await User.findOneOrFail({ where: { id: user }});
         return USER;
+    }
+
+    @FieldResolver(() => [EventFAQ])
+    async faqs(@Root() { id }: Event ) {
+        const eventFAQs = await EventFAQ.find({ where: { event: id }, order: { updatedOn: "DESC" } });
+        return eventFAQs;
     }
 }
