@@ -166,4 +166,12 @@ export class UserResolver {
         const events = await Event.find({ where: { user: id } });
         return events;
     }
+
+    @Authorized()
+    @FieldResolver(() => [Event])
+    async registeredEvents(@Root() { id }: User ) {
+        const { registeredEvents } = await User.findOneOrFail( id, { relations: ["registeredEvents"] } );
+
+        return registeredEvents;
+    }
 }

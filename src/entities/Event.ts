@@ -1,12 +1,13 @@
 import cuid from "cuid";
-import { EventType, Standard } from "../utils";
+import { EventType, RegistraionType, Standard } from "../utils";
 import { Field, ID, ObjectType, registerEnumType } from "type-graphql";
-import { BaseEntity, BeforeInsert, Column, Entity, ManyToOne, OneToMany, PrimaryColumn, UpdateDateColumn } from "typeorm";
+import { BaseEntity, BeforeInsert, Column, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryColumn, UpdateDateColumn } from "typeorm";
 import { User } from "./User";
 import { EventFAQ } from "./EventFAQ";
 
 registerEnumType( Standard, { name: "Standard" } );
 registerEnumType( EventType, { name: "EventType" } );
+registerEnumType( RegistraionType, { name: "RegistraionType" } );
 
 @Entity("Event")
 @ObjectType("Event")
@@ -53,10 +54,18 @@ export class Event extends BaseEntity {
     @Field()
     updatedOn: string;
 
+    @Column()
+    @Field()
+    registrationType: RegistraionType;
+
     //relations
     @ManyToOne(() => User, user => user.events)
     user: User;
 
     @OneToMany(() => EventFAQ, faqs => faqs.event)
-    faqs: EventFAQ[]
+    faqs: EventFAQ[];
+
+    @ManyToMany(() => User, (user) => user.registeredEvents)
+    @JoinTable()
+    registeredUsers: User[];
 }

@@ -66,11 +66,45 @@ export class EventResolver {
         return event;
     }
 
+    @Authorized()
+    @Mutation(() => Boolean)
+    async register(@Arg("EventID") id: string, @Ctx() { user }: MyContext ) {
+        const event = await Event.findOneOrFail( id, { relations: ["registeredUsers"]});
+
+        const userF = event.registeredUsers.filter((useR) => useR.id === user.id);
+        if( userF.length === 1 ) throw new Error("User registered already");
+
+        if( event.audience.includes(user.class) ) {
+            event.registeredUsers.push(user);
+            event.save();
+        } else throw new Error("Invalid target audience")
+
+        return !!event;
+    }
+
     @Authorized(["ADMIN"])
     @FieldResolver(() => User)
     async user(@Root() { user } : Event ) {
         const USER  = await User.findOneOrFail({ where: { id: user }});
         return USER;
+    }
+
+    @Authorized(["ADMIN"])
+    @FieldResolver(() => [User])
+    async registeredUser(@Root() { id }: Event) {
+        const event = await Event.findOneOrFail(id, { relations: ["registeredUsers"] });
+      
+        return event.registeredUsers;
+    }
+
+    @Authorized()
+    @FieldResolver(() => Boolean )
+    async isRegisterd(@Root() { id }: Event, @Ctx() { user }: MyContext ) {
+        const event = await Event.findOneOrFail(id, { relations: ["registeredUsers"] });
+
+        // return event.registeredUsers.includes(user);
+        const userF = event.registeredUsers.filter((useR) => useR.id === user.id);
+        return userF.length === 1;
     }
 
     @FieldResolver(() => [EventFAQ])

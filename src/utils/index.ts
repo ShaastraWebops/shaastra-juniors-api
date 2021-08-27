@@ -38,3 +38,8 @@ export enum EventType {
   COMPETITIONS = "COMPETITIONS",
   SHOWS = "SHOWS"
 }
+
+export enum RegistraionType {
+  TEAM = "TEAM",
+  INDIVIDUAL = "INDIVIDUAL"
+}

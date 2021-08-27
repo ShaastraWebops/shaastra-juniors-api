@@ -1,4 +1,4 @@
-import { EventType, Standard } from "../utils";
+import { EventType, RegistraionType, Standard } from "../utils";
 import { Field, InputType } from "type-graphql";
 
 @InputType("CreateEventInput")
@@ -24,6 +24,9 @@ export class CreateEventInput {
 
     @Field()
     eventTimeTo: string;
+
+    @Field(() => RegistraionType)
+    registrationType: RegistraionType
 }
 
 @InputType("EditEventInput")
@@ -49,4 +52,7 @@ export class EditEventInput {
 
     @Field({ nullable: true })
     eventTimeTo: string;
+
+    @Field(() => RegistraionType, { nullable: true })
+    registrationType: RegistraionType
 }
