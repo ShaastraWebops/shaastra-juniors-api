@@ -1,3 +1,4 @@
+import { ChampionshipResolver } from "./Championship";
 import { EventResolver } from "./Event";
 import { EventFAQResolver } from "./EventFAQ";
 import { FAQsResolver } from "./FAQs";
@@ -9,5 +10,6 @@ export default [
     EventResolver,
     EventFAQResolver,
     TeamResolver,
+    ChampionshipResolver,
     FAQsResolver
 ] as const;
