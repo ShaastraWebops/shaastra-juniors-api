@@ -8,6 +8,7 @@ import { ADMINMAILLIST, UserRole } from "../utils";
 import cuid from "cuid";
 import { Like } from "typeorm";
 import { Event } from "../entities/Event";
+import { Team } from "../entities/Team";
 
 @ObjectType("GetUsersOutput")
 class GetUsersOutput {
@@ -170,7 +171,12 @@ export class UserResolver {
     @Authorized()
     @FieldResolver(() => [Event])
     async registeredEvents(@Root() { id }: User ) {
-        const { registeredEvents } = await User.findOneOrFail( id, { relations: ["registeredEvents"] } );
+        let { registeredEvents, teams } = await User.findOneOrFail( id, { relations: ["registeredEvents", "teams"] } );
+
+        await Promise.all(teams?.map(async (team) => {
+            const teaM = await Team.findOneOrFail(team.id, { relations: ["event"] });
+            registeredEvents.push(teaM.event);
+        }));
 
         return registeredEvents;
     }

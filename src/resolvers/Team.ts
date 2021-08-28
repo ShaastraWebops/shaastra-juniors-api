@@ -1,0 +1,61 @@
+import { Team } from "../entities/Team";
+import { Arg, Authorized, Ctx, FieldResolver, Mutation, Resolver, Root } from "type-graphql";
+import { MyContext } from "../utils/context";
+import { CreateTeamInput } from "../inputs/Team";
+import { User } from "../entities/User";
+import { Event } from "../entities/Event";
+import { RegistraionType } from "../utils";
+import { isRegisteredInEvent } from "../utils/isRegisteredInEvent";
+
+@Resolver(Team)
+export class TeamResolver {
+
+    @Authorized()
+    @Mutation(() => Boolean)
+    async createTeamAndRegister(@Arg("data") { name, members, eventID }: CreateTeamInput, @Ctx() { user }: MyContext) {
+        const event = await Event.findOneOrFail(eventID);
+
+        if(event.registrationType === RegistraionType.INDIVIDUAL) throw new Error("Not allowed for team registration")
+        if(members?.length > event.teamSize) throw new Error("Team limit exceed");
+
+        const team =  Team.create();
+        team.name = name;
+        team.event = event;
+        team.members = [];
+
+        members.push(user.sjID);
+        await Promise.all(members?.map(async (member) => {
+            const userM = await User.findOneOrFail({ where: { sjID: member } });
+
+            const { sjID } = userM;
+            if(!userM) throw new Error(`Invalid SJ ID ${sjID}`);
+            if(!event.audience.includes(userM.class)) throw new Error(`${sjID} is not an target audience`);
+
+            const isReg = await isRegisteredInEvent(eventID, user.id);
+            if(isReg) throw new Error(`${sjID} is already part of registered for this event`)
+
+            team.members.push(userM);
+        }));
+
+        await team.save();
+        return !!team;
+    }
+
+    @Authorized()
+    @Mutation(() => Boolean)
+    async leaveTeam(@Arg("data") teamID: string, @Ctx() { user }: MyContext ) {
+        const team = await Team.findOneOrFail(teamID, { relations: ["members"] });
+
+        team.members = team.members.filter((member) => member.id !== user.id);
+        await team.save();
+
+        return !!team;
+    }
+
+    @Authorized()
+    @FieldResolver(() => [User])
+    async members(@Root() { id }: Team ) {
+        const team = await Team.findOneOrFail(id, { relations: ["members"] });
+        return team.members;
+    } 
+}

@@ -6,6 +6,7 @@ import jwt from "jsonwebtoken";
 import { mail } from "../utils/mail";
 import { BaseEntity, BeforeInsert, Column, Entity, ManyToMany, OneToMany, PrimaryColumn } from "typeorm";
 import { Event } from "./Event"
+import { Team } from "./Team";
 
 registerEnumType( UserRole, { name: "UserRole" } );
 
@@ -116,4 +117,7 @@ export class User extends BaseEntity {
 
     @ManyToMany(() => Event, (event) => event.registeredUsers)
     registeredEvents: Event[];
+
+    @ManyToMany(() => Team, (team) => team.members)
+    teams: Team[]
 }

@@ -26,7 +26,10 @@ export class CreateEventInput {
     eventTimeTo: string;
 
     @Field(() => RegistraionType)
-    registrationType: RegistraionType
+    registrationType: RegistraionType;
+
+    @Field({ nullable: true })
+    teamSize: number;
 }
 
 @InputType("EditEventInput")
@@ -54,5 +57,8 @@ export class EditEventInput {
     eventTimeTo: string;
 
     @Field(() => RegistraionType, { nullable: true })
-    registrationType: RegistraionType
+    registrationType: RegistraionType;
+
+    @Field({ nullable: true })
+    teamSize: number;
 }

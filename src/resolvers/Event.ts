@@ -3,9 +3,11 @@ import { Arg, Authorized, Ctx, Field, FieldResolver, Mutation, ObjectType, Query
 import { CreateEventInput, EditEventInput } from "../inputs/Event";
 import { MyContext } from "../utils/context";
 import moment from "moment";
-import { EventType } from "../utils";
+import { EventType, RegistraionType } from "../utils";
 import { User } from "../entities/User";
 import { EventFAQ } from "../entities/EventFAQ";
+import { isRegisteredInEvent } from "../utils/isRegisteredInEvent";
+import { Team } from "../entities/Team";
 
 @ObjectType("GetEventsOutput")
 class GetEventsOutput {
@@ -22,6 +24,8 @@ export class EventResolver {
     @Authorized(["ADMIN"])
     @Mutation(() => Boolean)
     async createEvent(@Arg("data") data: CreateEventInput, @Ctx() { user }: MyContext) {
+        if(data.registrationType === RegistraionType.TEAM && data.teamSize === undefined) throw new Error("Enter Team Size");
+
         data.eventTimeFrom = moment(data.eventTimeFrom, "DD/MM/YYYY h:mm a").toISOString();
         data.eventTimeTo = moment(data.eventTimeTo, "DD/MM/YYYY h:mm a").toISOString();
 
@@ -70,6 +74,7 @@ export class EventResolver {
     @Mutation(() => Boolean)
     async register(@Arg("EventID") id: string, @Ctx() { user }: MyContext ) {
         const event = await Event.findOneOrFail( id, { relations: ["registeredUsers"]});
+        if(event.registrationType === RegistraionType.TEAM) throw new Error("Not allowed for individual registration")
 
         const userF = event.registeredUsers.filter((useR) => useR.id === user.id);
         if( userF.length === 1 ) throw new Error("User registered already");
@@ -97,14 +102,33 @@ export class EventResolver {
         return event.registeredUsers;
     }
 
+    @Authorized(["ADMIN"])
+    @FieldResolver(() => [Team])
+    async registeredTeam(@Root() { id }: Event) {
+        const teams = await Team.find({ where: { event: id }, relations: ["members"] });
+        return teams;
+    }
+
     @Authorized()
     @FieldResolver(() => Boolean )
-    async isRegisterd(@Root() { id }: Event, @Ctx() { user }: MyContext ) {
-        const event = await Event.findOneOrFail(id, { relations: ["registeredUsers"] });
+    async isRegistered(@Root() { id }: Event, @Ctx() { user }: MyContext ) {
+        const res = await isRegisteredInEvent(id, user.id);
+        return res;
+    }
 
-        // return event.registeredUsers.includes(user);
-        const userF = event.registeredUsers.filter((useR) => useR.id === user.id);
-        return userF.length === 1;
+    @Authorized()
+    @FieldResolver(() => Team, { nullable: true })
+    async yourTeam(@Root() { id }: Event, @Ctx() { user }: MyContext) {
+        const event = await Event.findOneOrFail(id, { relations: ["registeredTeam"] });
+
+        let getTeamID;
+        await Promise.all(event.registeredTeam?.map(async (team) => {
+            const teaM = await Team.findOneOrFail(team.id, { relations: ["members"], select: ["id", "name"] });
+    
+            const userF = teaM.members.filter((member) => member.id === user.id);
+            if(userF.length === 1) getTeamID = team.id;
+        }));
+        return await Team.findOneOrFail(getTeamID, { relations: ["members"] });
     }
 
     @FieldResolver(() => [EventFAQ])

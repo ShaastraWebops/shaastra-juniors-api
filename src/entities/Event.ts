@@ -4,6 +4,7 @@ import { Field, ID, ObjectType, registerEnumType } from "type-graphql";
 import { BaseEntity, BeforeInsert, Column, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryColumn, UpdateDateColumn } from "typeorm";
 import { User } from "./User";
 import { EventFAQ } from "./EventFAQ";
+import { Team } from "./Team";
 
 registerEnumType( Standard, { name: "Standard" } );
 registerEnumType( EventType, { name: "EventType" } );
@@ -58,6 +59,10 @@ export class Event extends BaseEntity {
     @Field()
     registrationType: RegistraionType;
 
+    @Column({ default: 1 })
+    @Field()
+    teamSize: number;
+
     //relations
     @ManyToOne(() => User, user => user.events)
     user: User;
@@ -68,4 +73,7 @@ export class Event extends BaseEntity {
     @ManyToMany(() => User, (user) => user.registeredEvents)
     @JoinTable()
     registeredUsers: User[];
+
+    @OneToMany(() => Team, (team) => team.event)
+    registeredTeam: Team[];
 }
