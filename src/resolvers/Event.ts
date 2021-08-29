@@ -1,6 +1,6 @@
 import { Event } from "../entities/Event";
 import { Arg, Authorized, Ctx, Field, FieldResolver, Mutation, ObjectType, Query, Resolver, Root } from "type-graphql";
-import { CreateEventInput, EditEventInput } from "../inputs/Event";
+import { CreateEventInput, CSVExportOutput, CSVExportUserOutput, EditEventInput } from "../inputs/Event";
 import { MyContext } from "../utils/context";
 import moment from "moment";
 import { EventType, RegistraionType } from "../utils";
@@ -8,6 +8,8 @@ import { User } from "../entities/User";
 import { EventFAQ } from "../entities/EventFAQ";
 import { isRegisteredInEvent } from "../utils/isRegisteredInEvent";
 import { Team } from "../entities/Team";
+import { parse } from "json2csv";
+import { getRepository } from "typeorm";
 
 @ObjectType("GetEventsOutput")
 class GetEventsOutput {
@@ -48,6 +50,61 @@ export class EventResolver {
     async deleteEvent(@Arg("EventID") id: string ) {
         const { affected } = await Event.delete(id);
         return affected === 1;
+    }
+
+    @Authorized(["ADMIN"])
+    @Query(() => Boolean)
+    async exportCSV(@Arg("EventID") id: string, @Ctx() { res }: MyContext) {
+        const event = await Event.findOneOrFail(id);
+        
+        const eventRepository = getRepository(Event);
+        //const teamRepository = getRepository(Team);
+        let csv;
+        if(event.registrationType === RegistraionType.INDIVIDUAL) {
+            const registeredUsers = await eventRepository.createQueryBuilder("event")
+            .where("event.id = :eventId", { eventId: id })
+            .leftJoinAndSelect("event.registeredUsers", "user")
+            .select(["user.name", "user.email", "user.sjID", "user.school", "user.class"])
+            .execute();
+
+            csv =  parse(registeredUsers);
+        } else {
+            // console.log("\n\n\n\n\n\n\n\n")
+            // const registeredTeams = await Event.query(`SELECT "user"."sjID" AS "user_sjID", "user"."email" AS "user_email", "user"."school" AS "user_school", "user"."class" AS "user_class", "team"."name" AS "team_name", "user"."name" AS "user_name" FROM "Event" "event" LEFT JOIN "Team" "team" ON "team"."eventId"="event"."id"  LEFT JOIN "team_members_user" "team_user" ON "team_user"."teamId"="team"."id" LEFT JOIN "User" "user" ON "user"."id"="team_user"."userId" WHERE "event"."id" = '${id}'`)
+            // const registeredTeams = await teamRepository.createQueryBuilder("team")
+            // .select(["name"])
+            // .leftJoinAndSelect("team.event", "event")
+            // .where("event.id = :eventId", { eventId: id })
+            // .leftJoinAndSelect("team.members", "user")
+            // .select(["user.name", "user.email", "user.sjID", "user.school", "user.class"])
+            // //.leftJoin("team.members", "user")
+            // .execute();
+            const registeredTeams = await Team.find({ where: { event }, relations: ["members"], select: ["name"] })//) as unknown) as CSVExportOutput[];
+
+            let csvArray: CSVExportOutput[] = new Array();
+            registeredTeams.map((registeredTeam) => {
+                let team: CSVExportOutput = {
+                    "name": registeredTeam.name,
+                    "members": []
+                };
+
+                registeredTeam.members.map((member) => {
+                    const { name, email, sjID, school } = member;
+                    let membeR: CSVExportUserOutput = { name, email, sjID, school, class: member.class };
+                    team.members.push(membeR);
+                })
+
+                csvArray.push(team);
+            })
+
+            csv = parse(csvArray);
+        }
+
+        res.setHeader("Content-disposition", "attachment; filename=registration.csv");
+        res.set('Content-Type', 'text/csv');
+        res.end(csv);
+
+        return true
     }
 
     @Query(() => GetEventsOutput)                                       //should remove past events
