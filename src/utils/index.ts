@@ -41,5 +41,6 @@ export enum EventType {
 
 export enum RegistraionType {
   TEAM = "TEAM",
-  INDIVIDUAL = "INDIVIDUAL"
+  INDIVIDUAL = "INDIVIDUAL",
+  NONE = "NONE"
 }

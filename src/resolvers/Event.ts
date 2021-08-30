@@ -131,6 +131,7 @@ export class EventResolver {
     @Mutation(() => Boolean)
     async register(@Arg("EventID") id: string, @Ctx() { user }: MyContext ) {
         const event = await Event.findOneOrFail( id, { relations: ["registeredUsers"]});
+        if(event.registrationType === RegistraionType.NONE) throw new Error("Registration for this event is not required")
         if(event.registrationType === RegistraionType.TEAM) throw new Error("Not allowed for individual registration")
 
         const userF = event.registeredUsers.filter((useR) => useR.id === user.id);

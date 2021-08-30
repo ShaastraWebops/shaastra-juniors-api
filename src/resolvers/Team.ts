@@ -15,6 +15,7 @@ export class TeamResolver {
     async createTeamAndRegister(@Arg("data") { name, members, eventID }: CreateTeamInput, @Ctx() { user }: MyContext) {
         const event = await Event.findOneOrFail(eventID);
 
+        if(event.registrationType === RegistraionType.NONE) throw new Error("Registration for this event is not required")
         if(event.registrationType === RegistraionType.INDIVIDUAL) throw new Error("Not allowed for team registration")
         if(members?.length > event.teamSize) throw new Error("Team limit exceed");
 
