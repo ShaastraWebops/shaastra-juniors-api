@@ -1,5 +1,5 @@
 import { EventType, RegistraionType, Standard } from "../utils";
-import { Field, InputType, ObjectType } from "type-graphql";
+import { Field, InputType } from "type-graphql";
 
 @InputType("CreateEventInput")
 export class CreateEventInput {
@@ -63,29 +63,29 @@ export class EditEventInput {
     teamSize: number;
 }
 
-@ObjectType()
-export class CSVExportOutput {
-    @Field()
-    name: string;
+// @ObjectType()
+// export class CSVExportOutput {
+//     @Field()
+//     name: string;
 
-    @Field(() => [CSVExportUserOutput])
-    members: CSVExportUserOutput[]
-}
+//     @Field(() => [CSVExportUserOutput])
+//     members: CSVExportUserOutput[]
+// }
 
-@ObjectType()
-export class CSVExportUserOutput {
-    @Field()
-    name: string;
+// @ObjectType()
+// export class CSVExportUserOutput {
+//     @Field()
+//     name: string;
 
-    @Field()
-    email: string;
+//     @Field()
+//     email: string;
 
-    @Field()
-    sjID: string;
+//     @Field()
+//     sjID: string;
 
-    @Field()
-    school: string;
+//     @Field()
+//     school: string;
 
-    @Field(() => Standard)
-    class: Standard;
-}
+//     @Field(() => Standard)
+//     class: Standard;
+// }

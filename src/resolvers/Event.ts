@@ -1,6 +1,6 @@
 import { Event } from "../entities/Event";
 import { Arg, Authorized, Ctx, Field, FieldResolver, Mutation, ObjectType, Query, Resolver, Root } from "type-graphql";
-import { CreateEventInput, CSVExportOutput, CSVExportUserOutput, EditEventInput } from "../inputs/Event";
+import { CreateEventInput, EditEventInput } from "../inputs/Event";
 import { MyContext } from "../utils/context";
 import moment from "moment";
 import { EventType, RegistraionType } from "../utils";
@@ -81,23 +81,22 @@ export class EventResolver {
             // .execute();
             const registeredTeams = await Team.find({ where: { event }, relations: ["members"], select: ["name"] })//) as unknown) as CSVExportOutput[];
 
-            let csvArray: CSVExportOutput[] = new Array();
+            let csvData = '"team name"';
+            const csvHeading = ',"name","email","sjID","school","class"';
+            for (let i = 0; i < event.teamSize; i++) {
+                csvData += csvHeading;
+            }
+
             registeredTeams.map((registeredTeam) => {
-                let team: CSVExportOutput = {
-                    "name": registeredTeam.name,
-                    "members": []
-                };
+
+                csvData += `\n "${registeredTeam.name}"`;
 
                 registeredTeam.members.map((member) => {
                     const { name, email, sjID, school } = member;
-                    let membeR: CSVExportUserOutput = { name, email, sjID, school, class: member.class };
-                    team.members.push(membeR);
+                    csvData += `, "${name}","${email}","${sjID}","${school}","${member.class}"`;
                 })
-
-                csvArray.push(team);
             })
-
-            csv = parse(csvArray);
+            csv = csvData;
         }
 
         res.setHeader("Content-disposition", "attachment; filename=registration.csv");
