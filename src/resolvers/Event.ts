@@ -161,10 +161,25 @@ export class EventResolver {
     }
 
     @Authorized(["ADMIN"])
+    @FieldResolver(() => Number)
+    async registeredUserCount(@Root() { id }: Event) {
+        const event = await Event.findOneOrFail(id, { relations: ["registeredUsers"] });
+      
+        return event.registeredUsers.length;
+    }
+
+    @Authorized(["ADMIN"])
     @FieldResolver(() => [Team])
     async registeredTeam(@Root() { id }: Event) {
         const teams = await Team.find({ where: { event: id }, relations: ["members"] });
         return teams;
+    }
+
+    @Authorized(["ADMIN"])
+    @FieldResolver(() => Number)
+    async registeredTeamCount(@Root() { id }: Event) {
+        const count = await Team.count({ where: { event: id } });
+        return count;
     }
 
     @Authorized()
