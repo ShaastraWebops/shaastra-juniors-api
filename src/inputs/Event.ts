@@ -19,6 +19,12 @@ export class CreateEventInput {
     @Field(() => [Standard])
     audience: Standard[]
 
+    @Field({ nullable: true })
+    registrationOpenTime: string;
+
+    @Field({ nullable: true })
+    registrationCloseTime: string;
+
     @Field()
     eventTimeFrom: string;
 
@@ -49,6 +55,12 @@ export class EditEventInput {
 
     @Field(() => [Standard], { nullable: true })
     audience: Standard[]
+
+    @Field({ nullable: true })
+    registrationOpenTime: string;
+
+    @Field({ nullable: true })
+    registrationCloseTime: string;
 
     @Field({ nullable: true })
     eventTimeFrom: string;

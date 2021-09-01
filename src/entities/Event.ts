@@ -43,6 +43,14 @@ export class Event extends BaseEntity {
     @Field(() => [Standard])
     audience: Standard[]
 
+    @Column("timestamptz", { nullable: true })
+    @Field({ nullable: true })
+    registrationOpenTime: string;
+
+    @Column("timestamptz", { nullable: true })
+    @Field({ nullable: true })
+    registrationCloseTime: string;
+
     @Column("timestamptz")
     @Field()
     eventTimeFrom: string;
