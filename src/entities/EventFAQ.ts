@@ -28,6 +28,6 @@ export class EventFAQ extends BaseEntity {
     @Field()
     answer: string;
 
-    @ManyToOne(() => Event, event => event.faqs )
+    @ManyToOne(() => Event, event => event.faqs, { onDelete : "CASCADE"} )
     event: Event
 }
