@@ -32,6 +32,14 @@ export class Event extends BaseEntity {
     description: string;
 
     @Column()
+    @Field({ nullable: true })
+    requirements: string;
+
+    @Column()
+    @Field({ nullable: true })
+    platform: string;
+
+    @Column()
     @Field()
     pic: string;
 
