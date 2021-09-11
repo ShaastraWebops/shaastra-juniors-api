@@ -97,6 +97,14 @@ export class User extends BaseEntity {
     @Field(() => Standard)
     class: Standard;
 
+    @Column()
+    @Field()
+    state: string;
+  
+    @Column()
+    @Field()
+    city: string;
+    
     @Column({ default: false})
     @Field()
     isVerified: boolean;

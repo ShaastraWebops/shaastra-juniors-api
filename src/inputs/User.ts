@@ -25,6 +25,12 @@ export class CreateUserInput {
 
 	@Field(() => Standard)
 	class: Standard;
+
+	@Field()
+	state: string;
+
+	@Field()
+	city: string;
 }
 
 @InputType("LoginInput")
@@ -54,6 +60,9 @@ export class EditProfileInput {
 
 	@Field({ nullable: true })
 	city?: string;
+
+	@Field({ nullable: true })
+	state?: string;
 }
 
 @InputType("RequestForgotPassInput")
