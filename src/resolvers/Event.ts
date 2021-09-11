@@ -9,7 +9,7 @@ import { EventFAQ } from "../entities/EventFAQ";
 import { isRegisteredInEvent } from "../utils/isRegisteredInEvent";
 import { Team } from "../entities/Team";
 import { parse } from "json2csv";
-import { getRepository } from "typeorm";
+import { getRepository, Raw } from "typeorm";
 
 @ObjectType("GetEventsOutput")
 class GetEventsOutput {
@@ -125,6 +125,24 @@ export class EventResolver {
     async getEvent(@Arg("EventID") id: string ) {
         const event = await Event.findOneOrFail({ where: { id }});
         return event;
+    }
+
+    @Query(() => [Event], { nullable: true })
+    async todaysHighlights() {
+        const dateNow = new Date();
+        const date = moment(dateNow, "DD/MM/YYYY h:mm a").toISOString();
+        console.log(date);
+
+        let eventArray : Array<Event> = [];
+        const showsEvents = await Event.find({ where: { eventType: EventType.SHOWS, eventTimeFrom: Raw((alias) => `${alias} >= :date`, { date }) }, take: 1, order: { eventTimeFrom: "ASC" } });
+        const compEvents = await Event.find({ where: { eventType: EventType.COMPETITIONS, eventTimeFrom: Raw((alias) => `${alias} >= :date`, { date }) }, take: 1, order: { eventTimeFrom: "ASC" } });
+        const workshopEvents = await Event.find({ where: { eventType: EventType.WORKSHOPS, eventTimeFrom: Raw((alias) => `${alias} >= :date`, { date }) }, take: 1, order: { eventTimeFrom: "ASC" } });
+
+        if(showsEvents.length !== 0) eventArray.push(showsEvents[0]);
+        if(compEvents.length !== 0) eventArray.push(compEvents[0]);
+        if(workshopEvents.length !== 0) eventArray.push(workshopEvents[0]);
+
+        return eventArray;
     }
 
     @Authorized()
