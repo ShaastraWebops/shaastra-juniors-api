@@ -44,6 +44,8 @@ export class UserResolver {
     async verifyUser(@Arg("token") token: string ) {
         const decoded = jwt.verify(token, process.env.JWT_SECRET ||  "secret" ) as any;
         const user = await User.findOneOrFail({ where: {id: decoded.id} });
+        
+        if( user.isVerified === true ) return true;
 
         if(user.verficationToken === decoded.verifyToken) {
             const { affected } = await User.update(user.id, {isVerified: true});
