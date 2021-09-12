@@ -26,13 +26,14 @@ export class User extends BaseEntity {
       const body = `Hello <b>${name}</b>,<br><br>
                     Thanks for signing up!<br><br>
                     Kindly verify your email address by clicking the ‘Verify email address’ button below 
-                    to begin your journey as a Campus Ambassador at IITM’s annual tech-fest, Shaastra 2022.<br>
-                    <a href="https://juniors.shaastra.org/verifyuser?token=${token}"><button>Verify</button></a><br><br>
-                    Or verify using the link: https://juniors.shaastra.org/verifyuser?token=${token}<br><br>
-                    Reach out to us in case of any queries at outreach@shaastra.org<br><br>
-                    Welcome!<br>
-                    Publicity team | Shaastra 2022<br><br>
-                    The verification link expires within 1 hour.`;
+                    to begin your journey of exploration through the set of brain-smacking events that we've
+                    got for you as a part of Shaastra Juniors 2021!<br><br>
+                    <a style='width: 100%; text-align: center;' href="https://juniors.shaastra.org/verifyuser/${token}"><button>Verify</button></a><br><br>
+                    Or verify using the link: https://juniors.shaastra.org/verifyuser/${token}<br><br>
+                    The verification link expires within 1 hour.<br><br>
+                    Reach out to us in case of any queries at juniors@shaastra.org<br><br>
+                    Best regards! <br>
+                    The Shaastra Team | IIT Madras<br><br>`;
       await mail({email, sub: "Verify your email address || Shaastra Juniors, Shaastra 2022, IIT Madras", body});
       console.log(token);
     }
@@ -42,29 +43,24 @@ export class User extends BaseEntity {
       const body = `Hello <b>${name}</b>,<br><br>
                     In case you forgot your password, you can reset it with a new password by 
                     clicking the ‘Reset my password’ button below.<br><br>
-                    <a href="https://juniors.shaastra.org/forgotpassword?token=${token}"><button>Verify</button></a><br><br>
+                    <a href="https://juniors.shaastra.org/forgotpassword/${token}"><button>Verify</button></a><br><br>
+                    The verification link expires within 30 minutes<br><br>
                     If you have not initiated this request, let us know at outreach@shaastra.org immediately.<br><br>
                     Reach out to us in case of any queries at outreach@shaastra.org<br><br>
-                    Welcome!<br>
-                    Publicity team | Shaastra 2022<br><br>
-                    The verification link expires within 30 minutes`;
+                    Best regards! <br>
+                    The Shaastra Team | IIT Madras<br><br>`;
       await mail({email, sub: "Forgot your password || Shaastra Juniors, Shaastra 2022, IIT Madras", body});
       console.log(token);
     }
 
     static async sendConfirmationMail({ name, email } : SendConfirmationMailOptions) {
       const body = `Hello <b>${name}</b>,<br><br>
-                    <b>Greetings from Shaastra 2021, IIT Madras!</b><br><br>
-                    Thank you for signing up for the Shaastra Juniors.
-                    Please complete the questionnaire on the portal by “<Given Date>”(you
-                    can sign-in using this email ID and the password given during sign-up),
-                    which is mandatory for selection. Further instructions pertaining to the
-                    selection process shall be intimated by mail. Meanwhile, please like and
-                    follow our Facebook page: fb.com/Shaastra for updates. If you have any
-                    queries, drop a mail at studentrelations@shaastra.org<br><br><br>
-                    Regards,<br>
-                    Team Shaastra,<br>
-                    IIT Madras`;
+                    <b>Greeting from team Shaastra, IIT Madras ! </b><br><br>
+                    We are delighted to have you onboard with us for Shaastra Juniors. 
+                    We hope you enjoy the spectrum of competitions, workshops, shows 
+                    and lectures that we've arranged as a part of Shaastra Juniors 2021.<br><br><br>
+                    Please feel free to reach out to us by mailing to juniors@shaastra.org<br><br><br>
+                    Visit juniors.shaastra.org for more information.<br><br><br>`;
       await mail({ email, sub: "Sign Up Confirmation || Shaastra Juniors, Shaastra 2022, IIT Madras", body})
     }
 
