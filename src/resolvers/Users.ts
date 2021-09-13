@@ -41,9 +41,21 @@ export class UserResolver {
     }
 
     @Mutation(() => Boolean)
+    async resendVerificationMail(@Arg("data") { email }: RequestForgotPassInput) {
+        const user = await User.findOneOrFail({ where: { email } });
+        const { name, id, verficationToken: verifyToken } = user;
+
+        await User.sendVerificationMail({ name, email, id, verifyToken });
+
+        return true;
+    }
+
+    @Mutation(() => Boolean)
     async verifyUser(@Arg("token") token: string ) {
         const decoded = jwt.verify(token, process.env.JWT_SECRET ||  "secret" ) as any;
         const user = await User.findOneOrFail({ where: {id: decoded.id} });
+        
+        if( user.isVerified === true ) return true;
 
         if(user.verficationToken === decoded.verifyToken) {
             const { affected } = await User.update(user.id, {isVerified: true});
@@ -60,11 +72,7 @@ export class UserResolver {
         const user = await User.findOneOrFail({ where: { email} });
         if(!user) throw new Error("Account Not Found");
 
-        if(!user.isVerified) {
-            const { name, email, id, verficationToken: verifyToken } = user;
-            await User.sendVerificationMail({ name, email, id, verifyToken });
-            throw new Error("Oops, email not verified!");
-        }
+        if(!user.isVerified) throw new Error("Oops, email not verified!");
 
         const checkPass = await bcrypt.compare(password, user?.password);
         if(!checkPass) throw new Error("Invalid Credential");
