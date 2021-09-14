@@ -45,8 +45,8 @@ export class User extends BaseEntity {
                     clicking the ‘Reset my password’ button below.<br><br>
                     <a href="https://juniors.shaastra.org/forgotpassword/${token}"><button>Verify</button></a><br><br>
                     The verification link expires within 30 minutes<br><br>
-                    If you have not initiated this request, let us know at outreach@shaastra.org immediately.<br><br>
-                    Reach out to us in case of any queries at outreach@shaastra.org<br><br>
+                    If you have not initiated this request, let us know at juniors@shaastra.org immediately.<br><br>
+                    Reach out to us in case of any queries at juniors@shaastra.org<br><br>
                     Best regards! <br>
                     The Shaastra Team | IIT Madras<br><br>`;
       await mail({email, sub: "Forgot your password || Shaastra Juniors, Shaastra 2022, IIT Madras", body});
