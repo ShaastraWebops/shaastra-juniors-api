@@ -43,7 +43,9 @@ export class UserResolver {
     @Mutation(() => Boolean)
     async resendVerificationMail(@Arg("data") { email }: RequestForgotPassInput) {
         const user = await User.findOneOrFail({ where: { email } });
-        const { name, id, verficationToken: verifyToken } = user;
+        const { name, id, verficationToken: verifyToken, isVerified } = user;
+
+        if(isVerified) throw new Error("Email has been verified before");
 
         await User.sendVerificationMail({ name, email, id, verifyToken });
 
