@@ -29,11 +29,6 @@ export class EventResolver {
         if(data.registrationType === RegistraionType.TEAM && data.teamSize === undefined) throw new Error("Enter Team Size");
         if((data.eventType !== EventType.SHOWS) && ((data.registrationOpenTime === undefined) || (data.registrationCloseTime === undefined))) throw new Error("Registration time is missing");
 
-        data.eventTimeFrom = moment(data.eventTimeFrom, "DD/MM/YYYY h:mm a").toISOString();
-        data.eventTimeTo = moment(data.eventTimeTo, "DD/MM/YYYY h:mm a").toISOString();
-        if(data.registrationOpenTime) data.registrationOpenTime = moment(data.registrationOpenTime, "DD/MM/YYYY h:mm a").toISOString();
-        if(data.registrationCloseTime) data.registrationCloseTime = moment(data.registrationCloseTime, "DD/MM/YYYY h:mm a").toISOString();
-
         const event = await Event.create({ ...data, user }).save();
         return event;
     }
@@ -41,10 +36,6 @@ export class EventResolver {
     @Authorized(["ADMIN"])
     @Mutation(() => Boolean)
     async editEvent(@Arg("data") data: EditEventInput, @Arg("EventID") id: string ) {
-        if(data.eventTimeFrom) data.eventTimeFrom = moment(data.eventTimeFrom, "DD/MM/YYYY h:mm a").toISOString();
-        if(data.eventTimeTo) data.eventTimeTo = moment(data.eventTimeTo, "DD/MM/YYYY h:mm a").toISOString();
-        if(data.registrationOpenTime) data.registrationOpenTime = moment(data.registrationOpenTime, "DD/MM/YYYY h:mm a").toISOString();
-        if(data.registrationCloseTime) data.registrationCloseTime = moment(data.registrationCloseTime, "DD/MM/YYYY h:mm a").toISOString();
 
         const { affected } = await Event.update(id, { ...data });
         return affected === 1;
