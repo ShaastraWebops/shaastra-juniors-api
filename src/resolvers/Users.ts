@@ -9,6 +9,7 @@ import cuid from "cuid";
 import { Like } from "typeorm";
 import { Event } from "../entities/Event";
 import { Team } from "../entities/Team";
+import { parse } from "json2csv";
 
 @ObjectType("GetUsersOutput")
 class GetUsersOutput {
@@ -146,8 +147,16 @@ export class UserResolver {
 
     @Authorized(["ADMIN"])
     @Query(() => Number)
-    async getUsersCount(@Arg("filter") filter : GetUsersFilter) {
-        return await User.count({ where: filter });
+    async getUsersCount() {
+        return await User.count({ where: { role: UserRole.USER }});
+    }
+
+    @Authorized(["ADMIN"])
+    @Query(() => String)
+    async getUsersDataCSV() {
+        const users = await User.find({ where: { role: UserRole.USER }, select: ["name", "email", "sjID", "class", "school", "state", "city"] });
+
+        return parse(users);
     }
 
     @Authorized(["ADMIN"])
