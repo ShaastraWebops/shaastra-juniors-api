@@ -23,22 +23,22 @@ class GetUsersOutput {
 @Resolver(User)
 export class UserResolver {
 
-    @Mutation(() => Boolean)
-    async createUser(@Arg("data") data: CreateUserInput) {
+    @Mutation(() => User)
+    async createUser(@Arg("data") data: CreateUserInput, @Ctx() {res} : MyContext) {
         const count = await User.count();
         var caidNum = ( "0000" + (count + 1) ).slice(-4);
         const sjID = `S22SJ${caidNum}`;
-        const user  = await User.create({ ...data, sjID }).save();
+        const user  = await User.create({ ...data, sjID, isVerified: true }).save();
 
-        const { name, email, id, verficationToken: verifyToken } = user;
-        await User.sendVerificationMail({ name, email, id, verifyToken });
-
-        if(ADMINMAILLIST.includes(email)){
+        if(ADMINMAILLIST.includes(user.email)){
             const { affected } = await User.update(user?.id, { role: UserRole.ADMIN })
-            return affected === 1;
+            if (affected !== 1) throw new Error("");
         }
 
-        return true;
+        let token = jwt.sign({ id: user.id }, process.env.JWT_SECRET || "secret");
+        res.cookie("token", token )
+
+        return user;
     }
 
     @Mutation(() => Boolean)
