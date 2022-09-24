@@ -22,4 +22,11 @@ export class EventFAQResolver {
         return affected === 1;
     }
 
+    @Authorized(["ADMIN"])
+    @Mutation(() => Boolean)
+    async deleteEventFAQ(@Arg("EventFAQID") id: string) {
+        const { affected } = await EventFAQ.delete(id);
+        return affected === 1;
+    }
+
 }

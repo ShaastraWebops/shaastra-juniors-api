@@ -9,7 +9,7 @@ import { EventFAQ } from "../entities/EventFAQ";
 import { isRegisteredInEvent } from "../utils/isRegisteredInEvent";
 import { Team } from "../entities/Team";
 import { parse } from "json2csv";
-import { getRepository } from "typeorm";
+import { getRepository, Raw } from "typeorm";
 
 @ObjectType("GetEventsOutput")
 class GetEventsOutput {
@@ -22,9 +22,9 @@ class GetEventsOutput {
 
 @Resolver(Event)
 export class EventResolver {
-    
+
     @Authorized(["ADMIN"])
-    @Mutation(() => Boolean)
+    @Mutation(() => Event)
     async createEvent(@Arg("data") data: CreateEventInput, @Ctx() { user }: MyContext) {
         if(data.registrationType === RegistraionType.TEAM && data.teamSize === undefined) throw new Error("Enter Team Size");
         if((data.eventType !== EventType.SHOWS) && ((data.registrationOpenTime === undefined) || (data.registrationCloseTime === undefined))) throw new Error("Registration time is missing");
@@ -35,7 +35,7 @@ export class EventResolver {
         if(data.registrationCloseTime) data.registrationCloseTime = moment(data.registrationCloseTime, "DD/MM/YYYY h:mm a").toISOString();
 
         const event = await Event.create({ ...data, user }).save();
-        return !!event;
+        return event;
     }
 
     @Authorized(["ADMIN"])
@@ -58,8 +58,8 @@ export class EventResolver {
     }
 
     @Authorized(["ADMIN"])
-    @Query(() => Boolean)
-    async exportCSV(@Arg("EventID") id: string, @Ctx() { res }: MyContext) {
+    @Query(() => String)
+    async exportCSV(@Arg("EventID") id: string) {
         const event = await Event.findOneOrFail(id);
         
         const eventRepository = getRepository(Event);
@@ -104,11 +104,7 @@ export class EventResolver {
             csv = csvData;
         }
 
-        res.setHeader("Content-disposition", "attachment; filename=registration.csv");
-        res.set('Content-Type', 'text/csv');
-        res.end(csv);
-
-        return true
+        return csv
     }
 
     @Query(() => GetEventsOutput)                                       //should remove past events
@@ -131,6 +127,24 @@ export class EventResolver {
         return event;
     }
 
+    @Query(() => [Event], { nullable: true })
+    async todaysHighlights() {
+        const dateNow = new Date();
+        const date = moment(dateNow, "DD/MM/YYYY h:mm a").toISOString();
+        console.log(date);
+
+        let eventArray : Array<Event> = [];
+        const showsEvents = await Event.find({ where: { eventType: EventType.SHOWS, eventTimeFrom: Raw((alias) => `${alias} >= :date`, { date }) }, take: 1, order: { eventTimeFrom: "ASC" } });
+        const compEvents = await Event.find({ where: { eventType: EventType.COMPETITIONS, eventTimeFrom: Raw((alias) => `${alias} >= :date`, { date }) }, take: 1, order: { eventTimeFrom: "ASC" } });
+        const workshopEvents = await Event.find({ where: { eventType: EventType.WORKSHOPS, eventTimeFrom: Raw((alias) => `${alias} >= :date`, { date }) }, take: 1, order: { eventTimeFrom: "ASC" } });
+
+        if(showsEvents.length !== 0) eventArray.push(showsEvents[0]);
+        if(compEvents.length !== 0) eventArray.push(compEvents[0]);
+        if(workshopEvents.length !== 0) eventArray.push(workshopEvents[0]);
+
+        return eventArray;
+    }
+
     @Authorized()
     @Mutation(() => Boolean)
     async register(@Arg("EventID") id: string, @Ctx() { user }: MyContext ) {
@@ -141,7 +155,7 @@ export class EventResolver {
         const endDate = new Date(event.registrationCloseTime);
         if(currentDate.getTime() <= startDate.getTime()) throw new Error("Registration is not opened yet");
         if(currentDate.getTime() >= endDate.getTime()) throw new Error("Registration Closed");
-
+        if(!user) throw new Error("Login to Register")
         if(event.registrationType === RegistraionType.NONE) throw new Error("Registration for this event is not required")
         if(event.registrationType === RegistraionType.TEAM) throw new Error("Not allowed for individual registration")
 
@@ -151,7 +165,7 @@ export class EventResolver {
         if( event.audience.includes(user.class) ) {
             event.registeredUsers.push(user);
             event.save();
-        } else throw new Error("Invalid target audience")
+        } else throw new Error("Registration is not open for your class")
 
         return !!event;
     }

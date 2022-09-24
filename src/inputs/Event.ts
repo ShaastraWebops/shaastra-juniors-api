@@ -11,6 +11,12 @@ export class CreateEventInput {
     description: string;
 
     @Field()
+    platform: string;
+
+    @Field()
+    requirements: string;
+
+    @Field()
     pic: string;
 
     @Field(() => EventType)
@@ -49,6 +55,12 @@ export class EditEventInput {
 
     @Field({ nullable: true })
     pic: string;
+
+    @Field()
+    platform: string;
+
+    @Field()
+    requirements: string;
 
     @Field(() => EventType, { nullable: true })
     eventType: EventType;
