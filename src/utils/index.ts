@@ -26,7 +26,7 @@ export enum Standard {
   FIFTH = "V",
   SIXTH = "VI",
   SEVENTH = "VII",
-  EIGTH = "VIII",
+  EIGHTH = "VIII",
   NINTH = "IX",
   TENTH = "X",
   ELEVENTH = "XI",

@@ -31,9 +31,15 @@ export class FAQsResolver {
         @Ctx() { user }: MyContext
     ) {
         let filter = { answer: isAnswered ? Not(IsNull()) : IsNull() } ;
-        if(user?.role !== UserRole.ADMIN) filter = { answer: Not(IsNull()) }
 
-        const faqs = await FAQs.find({ where: filter, take, skip, order: { createdOn: "DESC" } });
+        let faqs;
+        if(user?.role !== UserRole.ADMIN) {
+            filter = { answer: Not(IsNull()) }
+
+            faqs = await FAQs.find({ where: filter, take, skip, order: { createdOn: "DESC" } });
+        }
+
+        if(user?.role === UserRole.ADMIN) faqs = await FAQs.find({ take, skip, order: { answer: "DESC", createdOn: "DESC" } });
         const count = await FAQs.count({ where: filter });
         return { faqs, count };
     }

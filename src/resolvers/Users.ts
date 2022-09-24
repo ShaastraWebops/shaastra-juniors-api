@@ -9,6 +9,7 @@ import cuid from "cuid";
 import { Like } from "typeorm";
 import { Event } from "../entities/Event";
 import { Team } from "../entities/Team";
+import { parse } from "json2csv";
 
 @ObjectType("GetUsersOutput")
 class GetUsersOutput {
@@ -41,10 +42,24 @@ export class UserResolver {
     }
 
     @Mutation(() => Boolean)
+    async resendVerificationMail(@Arg("data") { email }: RequestForgotPassInput) {
+        const user = await User.findOneOrFail({ where: { email } });
+        const { name, id, verficationToken: verifyToken, isVerified } = user;
+
+        if(isVerified) throw new Error("Email has been verified before");
+
+        await User.sendVerificationMail({ name, email, id, verifyToken });
+
+        return true;
+    }
+
+    @Mutation(() => Boolean)
     async verifyUser(@Arg("token") token: string ) {
         const decoded = jwt.verify(token, process.env.JWT_SECRET ||  "secret" ) as any;
         const user = await User.findOneOrFail({ where: {id: decoded.id} });
-        if(user.isVerified) return true
+        
+        if( user.isVerified === true ) return true;
+
         if(user.verficationToken === decoded.verifyToken) {
             const { affected } = await User.update(user.id, {isVerified: true});
             if(affected === 1) {
@@ -60,11 +75,7 @@ export class UserResolver {
         const user = await User.findOneOrFail({ where: { email} });
         if(!user) throw new Error("Account Not Found");
 
-        if(!user.isVerified) {
-            const { name, email, id, verficationToken: verifyToken } = user;
-            await User.sendVerificationMail({ name, email, id, verifyToken });
-            throw new Error("Oops, email not verified!");
-        }
+        if(!user.isVerified) throw new Error("Oops, email not verified!");
 
         const checkPass = await bcrypt.compare(password, user?.password);
         if(!checkPass) throw new Error("Invalid Credential");
@@ -136,8 +147,16 @@ export class UserResolver {
 
     @Authorized(["ADMIN"])
     @Query(() => Number)
-    async getUsersCount(@Arg("filter") filter : GetUsersFilter) {
-        return await User.count({ where: filter });
+    async getUsersCount() {
+        return await User.count({ where: { role: UserRole.USER }});
+    }
+
+    @Authorized(["ADMIN"])
+    @Query(() => String)
+    async getUsersDataCSV() {
+        const users = await User.find({ where: { role: UserRole.USER }, select: ["name", "email", "sjID", "class", "school", "state", "city"] });
+
+        return parse(users);
     }
 
     @Authorized(["ADMIN"])

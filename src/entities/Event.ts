@@ -47,8 +47,8 @@ export class Event extends BaseEntity {
     @Field(() => EventType)
     eventType: EventType;
 
-    @Column({ name: 'audience', type: 'enum', enum: Standard, array: true })
-    @Field(() => [Standard])
+    @Column({ name: 'audience', type: 'enum', enum: Standard, array: true, nullable: true })
+    @Field(() => [Standard], {nullable: true})
     audience: Standard[]
 
     @Column("timestamptz", { nullable: true })
