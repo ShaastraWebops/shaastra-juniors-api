@@ -136,11 +136,11 @@ export class EventResolver {
         return eventArray;
     }
 
-    @Authorized()
+  
     @Mutation(() => Boolean)
     async register(@Arg("EventID") id: string, @Ctx() { user }: MyContext ) {
         const event = await Event.findOneOrFail( id, { relations: ["registeredUsers"]});
-
+        console.log(user)
         const startDate = new Date(event.registrationOpenTime);
         const currentDate = new Date();
         const endDate = new Date(event.registrationCloseTime);
@@ -151,12 +151,14 @@ export class EventResolver {
         if(event.registrationType === RegistraionType.TEAM) throw new Error("Not allowed for individual registration")
 
         const userF = event.registeredUsers.filter((useR) => useR.id === user.id);
+        console.log(userF)
         if( userF.length === 1 ) throw new Error("User registered already");
-
-        if( event.audience.includes(user.class) ) {
-            event.registeredUsers.push(user);
-            event.save();
-        } else throw new Error("Registration is not open for your class")
+        event.registeredUsers.push(user);
+        event.save();
+        // if( event.audience.includes(user.class) ) {
+        //     event.registeredUsers.push(user);
+        //     event.save();
+        // } else throw new Error("Registration is not open for your class")
 
         return !!event;
     }

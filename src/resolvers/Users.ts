@@ -71,26 +71,28 @@ export class UserResolver {
     }
 
     @Mutation(() => User, { nullable: true })
-    async login(@Arg("data") { email, password }: LoginInput, @Ctx() {res} : MyContext) {
-        const user = await User.findOneOrFail({ where: { email} });
-        if(!user) throw new Error("Account Not Found");
+    async login(@Arg("data") { email, password }: LoginInput, @Ctx() {res, user} : MyContext) {
+        const userLogged = await User.findOneOrFail({ where: { email} });
+        if(!userLogged) throw new Error("Account Not Found");
 
-        if(!user.isVerified) throw new Error("Oops, email not verified!");
+        if(!userLogged.isVerified) throw new Error("Oops, email not verified!");
 
-        const checkPass = await bcrypt.compare(password, user?.password);
+        const checkPass = await bcrypt.compare(password, userLogged?.password);
         if(!checkPass) throw new Error("Invalid Credential");
 
-        let token = jwt.sign({ id: user.id }, process.env.JWT_SECRET || "secret");
+        let token = jwt.sign({ id: userLogged.id }, process.env.JWT_SECRET || "secret");
 
         res.cookie("token", token )
-
-        return user;
+        user = userLogged
+        console.log(user)
+        return userLogged;
     }
 
-    @Authorized()
+   
     @Query(() => User, {nullable: true})
     async me(@Ctx() { user } : MyContext) {
-        return user;
+        console.log( User.findOneOrFail({where: {id: user.id}}))
+        return User.findOneOrFail({where: {id: user.id}});
     }
 
     @Authorized()
@@ -159,7 +161,7 @@ export class UserResolver {
         return parse(users);
     }
 
-    @Authorized(["ADMIN"])
+   
     @Query(() => User, { nullable: true })
     async getUser(@Arg("userId") userId: string) {
       return await User.findOneOrFail(userId);

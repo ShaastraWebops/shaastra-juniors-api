@@ -21,7 +21,9 @@ const main = async () => {
     schema,
     context: async ( { req, res } : { req: express.Request, res: express.Response } ) => {
       let user;
+      console.log(req.headers.cookie)
       if(req.headers.cookie) {
+        console.log(req.cookies)
         const token = req.headers.cookie.split("token=")[1];
         if(token){
           const decoded = jwt.verify(token, process.env.JWT_SECRET ||  "secret" ) as any;
@@ -42,7 +44,7 @@ const main = async () => {
   app.use( 
     cors({
       credentials: true,
-      origin:["https://studio.apollographql.com", "http://localhost:8000/graphql",'http://localhost:3000']
+      origin:["https://studio.apollographql.com", "http://localhost:8000/graphql",'http://localhost:3000', 'https://juniors.shaastra.org', 'https://plankton-app-6laji.ondigitalocean.app/', 'https://api.juniors.shaastra.org']
     })
   );
   //await server.start();
