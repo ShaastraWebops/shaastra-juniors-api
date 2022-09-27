@@ -64,7 +64,7 @@ const main = async () => {
   
 createConnection({
   type: "postgres",
-  url: process.env.DATABASE_URL,
+  url: 'postgres//doadmin:AVNS_aPiBcNCbKniFtJwhvLC@db-postgresql-blr1-95873-do-user-7555493-0.b.db.ondigitalocean.com::25060/defaultdb',
   entities,
   synchronize: true,
   logging: true,
