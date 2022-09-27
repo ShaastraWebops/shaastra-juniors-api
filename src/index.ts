@@ -61,11 +61,14 @@ const main = async () => {
   //   console.log(`Server started at ${url}`);
   // });
   };
-  
-createConnection({
-  type: "postgres",
-  url: 'postgres//doadmin:AVNS_aPiBcNCbKniFtJwhvLC@db-postgresql-blr1-95873-do-user-7555493-0.b.db.ondigitalocean.com::25060/defaultdb',
-  entities,
+  createConnection({
+    type: "postgres",
+    host: "db-postgresql-blr1-95873-do-user-7555493-0.b.db.ondigitalocean.com",
+    port: 25060,
+    username: "doadmin",
+    password: "AVNS_aPiBcNCbKniFtJwhvLC",
+    database: "defaultdb",
+    entities,
   synchronize: true,
   logging: true,
   ssl: true,
@@ -75,7 +78,22 @@ createConnection({
       rejectUnauthorized: false,
     }
   }
-})
+  })
+// createConnection({
+//   type: "postgres",
+//   url: 'postgres//doadmin:AVNS_aPiBcNCbKniFtJwhvLC@db-postgresql-blr1-95873-do-user-7555493-0.b.db.ondigitalocean.com::25060/defaultdb',
+  
+//   entities,
+//   synchronize: true,
+//   logging: true,
+//   ssl: true,
+//   extra: {
+//     ssl: {
+//       ca: process.env.cert,
+//       rejectUnauthorized: false,
+//     }
+//   }
+// })
 .then(() => {
   console.log('Database Connected');
   main();
