@@ -68,6 +68,13 @@ createConnection({
   entities,
   synchronize: true,
   logging: true,
+  ssl: true,
+  extra: {
+    ssl: {
+      ca: process.env.cert,
+      rejectUnauthorized: false,
+    }
+  }
 })
 .then(() => {
   console.log('Database Connected');
