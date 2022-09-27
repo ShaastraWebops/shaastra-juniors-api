@@ -28,7 +28,7 @@ export class User extends BaseEntity {
                     Kindly verify your email address by clicking the ‘Verify email address’ button below 
                     to begin your journey of exploration through the set of brain-smacking events that we've
                     got for you as a part of Shaastra Juniors 2022!<br><br>
-                    <a style='width: 100%; text-align: center;' href="http://localhost:3000/verify"><button>Verify email address</button></a><br><br>
+                    <a style='width: 100%; text-align: center;' href="https://juniors.shaastra.org/verify"><button>Verify email address</button></a><br><br>
                     <b> Your verification token:</b> ${token} <br></br>
                     The verification link expires within 1 hour.<br><br>
                     Reach out to us in case of any queries at juniors@shaastra.org<br><br>
