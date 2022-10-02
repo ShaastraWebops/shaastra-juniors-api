@@ -138,22 +138,23 @@ export class EventResolver {
 
   
     @Mutation(() => Boolean)
-    async register(@Arg("EventID") id: string, @Ctx() { user }: MyContext ) {
+    async register(@Arg("EventID") id: string, @Arg("sjid") sjid: string ) {
         const event = await Event.findOneOrFail( id, { relations: ["registeredUsers"]});
-        console.log(user)
+        // console.log(user)
         const startDate = new Date(event.registrationOpenTime);
         const currentDate = new Date();
         const endDate = new Date(event.registrationCloseTime);
         if(currentDate.getTime() <= startDate.getTime()) throw new Error("Registration is not opened yet");
         if(currentDate.getTime() >= endDate.getTime()) throw new Error("Registration Closed");
-        if(!user) throw new Error("Login to Register")
+        // if(!user) throw new Error("Login to Register")
         if(event.registrationType === RegistraionType.NONE) throw new Error("Registration for this event is not required")
         if(event.registrationType === RegistraionType.TEAM) throw new Error("Not allowed for individual registration")
-
-        const userF = event.registeredUsers.filter((useR) => useR.id === user.id);
+        const user = await User.findOneOrFail({where: {sjID: sjid}})
+        if(!user) throw new Error("Login to Register")
+        const userF = event.registeredUsers.filter((useR) => useR.id === sjid);
         console.log(userF)
         if( userF.length === 1 ) throw new Error("User registered already");
-        event.registeredUsers.push(user);
+      if(user)   event.registeredUsers.push(user);
         event.save();
         // if( event.audience.includes(user.class) ) {
         //     event.registeredUsers.push(user);
