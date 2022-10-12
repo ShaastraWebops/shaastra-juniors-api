@@ -26,7 +26,8 @@ export class UserResolver {
     @Mutation(() => Boolean)
     async createUser(@Arg("data") data: CreateUserInput) {
         const count = await User.count();
-        var caidNum = ( "0000" + (count + 1) ).slice(-4);
+        var caidNum = ( "0000" + (count + 2) ).slice(-4);
+        console.log(caidNum, count)
         const sjID = `S22SJ${caidNum}`;
         const user  = await User.create({ ...data, sjID }).save();
 
