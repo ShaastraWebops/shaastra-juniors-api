@@ -10,7 +10,6 @@ import { isRegisteredInEvent } from "../utils/isRegisteredInEvent";
 @Resolver(Team)
 export class TeamResolver {
 
-    @Authorized()
     @Mutation(() => Boolean)
     async createTeamAndRegister(@Arg("data") { name, members, eventID }: CreateTeamInput, @Ctx() { user }: MyContext) {
         const event = await Event.findOneOrFail(eventID);
