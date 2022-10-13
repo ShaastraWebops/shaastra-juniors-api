@@ -11,7 +11,7 @@ import { isRegisteredInEvent } from "../utils/isRegisteredInEvent";
 export class TeamResolver {
 
     @Mutation(() => Boolean)
-    async createTeamAndRegister(@Arg("data") { name, members, eventID }: CreateTeamInput, @Ctx() { user }: MyContext) {
+    async createTeamAndRegister(@Arg("data") { name, members, eventID }: CreateTeamInput) {
         const event = await Event.findOneOrFail(eventID);
 
         const startDate = new Date(event.registrationOpenTime);
@@ -29,15 +29,15 @@ export class TeamResolver {
         team.event = event;
         team.members = [];
 
-        members.push(user.sjID);
+        // members.push(user.sjID);
         await Promise.all(members?.map(async (member) => {
             const userM = await User.findOneOrFail({ where: { sjID: member } });
 
             const { sjID } = userM;
             if(!userM) throw new Error(`Invalid SJ ID ${sjID}`);
-            if(!event.audience.includes(userM.class)) throw new Error(`${sjID} is not an target audience`);
+            // if(!event.audience.includes(userM.class)) throw new Error(`${sjID} is not an target audience`);
 
-            const isReg = await isRegisteredInEvent(eventID, user.id);
+            const isReg = await isRegisteredInEvent(eventID, member[0]);
             if(isReg) throw new Error(`${sjID} is already part of registered for this event`)
 
             team.members.push(userM);
